@@ -1,1 +1,1 @@
-export { ZipInput } from './ZipInput/ZipInput';
+export ZipInput from './ZipInput/ZipInput';
