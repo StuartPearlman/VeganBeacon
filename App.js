@@ -1,39 +1,62 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import {
+  StyleSheet, Text, View, Button,
+} from 'react-native';
+
 import { menuItemService } from './services';
+import { ZipInput } from './components';
 
 let styles;
 
 export default class App extends Component {
-    state = {};
+  constructor(props) {
+    super(props);
+    this.state = { zip: '' };
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.getRestaurants = this.getRestaurants.bind(this);
+  }
 
-    async componentDidMount() {
-      try {
-        const restaurants = await menuItemService.getVenues();
-        this.setState({ restaurants });
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log(e);
-      }
+  async getRestaurants() {
+    try {
+      const { zip } = this.state;
+      const restaurants = await menuItemService.getVenues(zip);
+      this.setState({ restaurants });
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(e);
     }
+  }
 
-    getRestaurantsMarkup = () => {
-      const { restaurants } = this.state;
-      return restaurants.map(restaurant => <Text key={restaurant.name}>{restaurant.name}</Text>);
-    };
+  getRestaurantsMarkup = () => {
+    const { restaurants } = this.state;
+    return restaurants.map(restaurant => <Text key={restaurant.name}>{restaurant.name}</Text>);
+  };
 
-    render() {
-      const { restaurants } = this.state;
+  handleInputChange(text) {
+    this.setState({ zip: text.replace(/[^0-9]/g, '') });
+  }
 
-      return (
-        <View style={styles.container}>
-          {restaurants
-            ? this.getRestaurantsMarkup()
-            : <Text>Loading...</Text>
-          }
-        </View>
-      );
-    }
+  render() {
+    const { restaurants, zip } = this.state;
+
+    return (
+      <View style={styles.container}>
+        {restaurants
+          ? this.getRestaurantsMarkup()
+          : (
+            <View style={styles.container}>
+              <ZipInput name="zip" value={zip} onChangeText={this.handleInputChange} />
+              <Button
+                style={styles.container}
+                onPress={this.getRestaurants}
+                title="Search"
+              />
+            </View>
+          )
+        }
+      </View>
+    );
+  }
 }
 
 styles = StyleSheet.create({

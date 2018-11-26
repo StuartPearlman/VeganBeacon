@@ -1,27 +1,22 @@
-import React, { Component } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import React from 'react';
+import { TextInput } from 'react-native';
+import PropTypes from 'prop-types';
 
-let styles;
-
-export default class ZipInput extends Component {
-  state = { text: 'ZIP Code' };
-
-  render() {
-    const { text } = this.state;
-
-    return (
-      <View style={styles.container}>
-        <TextInput value={text} />
-      </View>
-    );
-  }
+export default function ZipInput({ value, onChangeText }) {
+  return (
+    <TextInput
+      value={value}
+      onChangeText={onChangeText}
+      placeholder="Enter your ZIP Code"
+      textContentType="postalCode"
+      keyboardType="numeric"
+      maxLength={5}
+      returnKeyType="search"
+    />
+  );
 }
 
-styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+ZipInput.propTypes = {
+  onChangeText: PropTypes.func.isRequired,
+  value: PropTypes.string.isRequired,
+};
