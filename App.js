@@ -1,19 +1,42 @@
 import React, { Component } from 'react';
 import {
-  StyleSheet, Text, View, Button,
+  StyleSheet, View, BackHandler, FlatList, Text,
 } from 'react-native';
+import { Font } from 'expo';
+import {
+  Container, Header, Button, Icon, Left, Body, Title, Right,
+} from 'native-base';
 
 import { menuItemService } from './services';
-import { ZipInput } from './components';
+import { ZipInput, MenuCard } from './components';
 
 let styles;
 
 export default class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { zip: '' };
+    this.state = { zip: '', fontLoaded: false };
     this.handleInputChange = this.handleInputChange.bind(this);
     this.getRestaurants = this.getRestaurants.bind(this);
+    this.backHandler = this.backHandler.bind(this);
+    this.goBack = this.goBack.bind(this);
+  }
+
+  async componentWillMount() {
+    await Font.loadAsync({ /* eslint-disable global-require */
+      Roboto: require('native-base/Fonts/Roboto.ttf'),
+      Roboto_medium: require('native-base/Fonts/Roboto_medium.ttf'),
+    });
+
+    this.setState({ fontLoaded: true });
+  }
+
+  componentDidMount() {
+    this.backHandler();
+  }
+
+  componentWillUnmount() {
+    this.backHandler.remove();
   }
 
   async getRestaurants() {
@@ -27,35 +50,75 @@ export default class App extends Component {
     }
   }
 
+  keyExtractor = item => item.name;
+
   getRestaurantsMarkup = () => {
     const { restaurants } = this.state;
-    return restaurants.map(restaurant => <Text key={restaurant.name}>{restaurant.name}</Text>);
+    return (
+      <FlatList
+        data={restaurants}
+        keyExtractor={this.keyExtractor}
+        renderItem={
+          ({ item: restaurant }) => <MenuCard key={restaurant.name} restaurant={restaurant} />
+        }
+      />
+    );
   };
+
+  backHandler() {
+    BackHandler.addEventListener('hardwareBackPress', () => {
+      this.goBack();
+      return true;
+    });
+  }
+
+  goBack() {
+    this.setState({ restaurants: null, zip: '' });
+  }
 
   handleInputChange(text) {
     this.setState({ zip: text.replace(/[^0-9]/g, '') });
   }
 
   render() {
-    const { restaurants, zip } = this.state;
+    const { restaurants, zip, fontLoaded } = this.state;
 
-    return (
-      <View style={styles.container}>
-        {restaurants
-          ? this.getRestaurantsMarkup()
-          : (
-            <View style={styles.container}>
-              <ZipInput name="zip" value={zip} onChangeText={this.handleInputChange} />
-              <Button
-                style={styles.container}
-                onPress={this.getRestaurants}
-                title="Search"
-              />
-            </View>
-          )
-        }
-      </View>
-    );
+    if (fontLoaded) {
+      return (
+        <Container>
+          <Header noLeft={!restaurants}>
+            <Left style={{ flex: 1 }}>
+              {
+                restaurants
+                && (
+                  <Button transparent onPress={this.goBack}>
+                    <Icon name="arrow-back" />
+                  </Button>
+                )
+              }
+            </Left>
+            <Body style={{ flex: 1 }}>
+              <Title>Vegan Beacon</Title>
+            </Body>
+            <Right style={{ flex: 1 }} />
+          </Header>
+          {
+            restaurants
+              ? this.getRestaurantsMarkup()
+              : (
+                <View style={styles.container}>
+                  <ZipInput name="zip" value={zip} onChangeText={this.handleInputChange} />
+                  <Button primary onPress={this.getRestaurants} style={{ marginLeft: 'auto', marginRight: 'auto', padding: 10 }}>
+                    <Text style={{ color: '#fff' }}> Search </Text>
+                  </Button>
+                </View>
+              )
+          }
+        </Container>
+      );
+    }
+
+    return null;
   }
 }
 
