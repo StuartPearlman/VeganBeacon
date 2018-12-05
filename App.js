@@ -4,11 +4,11 @@ import {
 } from 'react-native';
 import { Font } from 'expo';
 import {
-  Container, Header, Button, Icon, Left, Body, Title, Right,
+  Container, Header, Button, Left, Body, Title, Right,
 } from 'native-base';
 
 import { menuItemService } from './services';
-import { ZipInput, MenuCard } from './components';
+import { ZipInput, MenuCard, RippleIcon } from './components';
 
 let styles;
 
@@ -86,18 +86,17 @@ export default class App extends Component {
     if (fontLoaded) {
       return (
         <Container>
-          <Header noLeft={!restaurants}>
-            <Left style={{ flex: 1 }}>
+          <Header>
+            <Left style={{ flex: 1, marginLeft: restaurants && -40 }}>
               {
-                restaurants
-                && (
-                  <Button transparent onPress={this.goBack}>
-                    <Icon name="arrow-back" />
+                restaurants && (
+                  <Button transparent>
+                    <RippleIcon name="arrow-back" color="#fff" size={40} onPress={this.goBack} />
                   </Button>
                 )
               }
             </Left>
-            <Body style={{ flex: 1 }}>
+            <Body style={{ flex: 1, marginLeft: restaurants && 40 }}>
               <Title>Vegan Beacon</Title>
             </Body>
             <Right style={{ flex: 1 }} />
