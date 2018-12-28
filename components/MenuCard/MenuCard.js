@@ -5,6 +5,7 @@ import {
   Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Body,
 } from 'native-base';
 import iconImg from '../../assets/icon.png';
+import { avatarService } from '../../services';
 
 export default function MenuCard({ restaurant }) {
   return (
@@ -12,7 +13,7 @@ export default function MenuCard({ restaurant }) {
       <Card>
         <CardItem>
           <Left>
-            <Thumbnail source={iconImg} />
+            <Thumbnail source={{ uri: avatarService.getAvatarUrl(restaurant.name) }} />
             <Body>
               <Text>{restaurant.name}</Text>
               <Text note>April 15, 2016</Text>
